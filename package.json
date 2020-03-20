@@ -1,0 +1,48 @@
+{
+  "name": "react-slack-clone",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "emoji-mart": "^3.0.0",
+    "firebase": "^7.12.0",
+    "md5": "^2.2.1",
+    "mime-types": "^2.1.26",
+    "moment": "^2.24.0",
+    "react": "^16.13.1",
+    "react-avatar-editor": "^12.0.0-beta.0",
+    "react-color": "^2.18.0",
+    "react-dom": "^16.13.1",
+    "react-redux": "^7.2.0",
+    "react-router-dom": "^5.1.2",
+    "react-scripts": "^3.4.0",
+    "redux": "^4.0.5",
+    "redux-devtools-extension": "^2.13.8",
+    "semantic-ui-css": "^2.4.1",
+    "semantic-ui-react": "^0.88.2",
+    "uuid": "^7.0.2"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "semi": false,
+    "singleQuote": true
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
