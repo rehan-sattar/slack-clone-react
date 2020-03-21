@@ -23,11 +23,13 @@ export default function App() {
         currentUser={currentUser}
       />
       <Grid.Column style={{ marginLeft: 320 }}>
-        <Messages
-          key={currentChannel && currentChannel.id}
-          currentChannel={currentChannel}
-          currentUser={currentUser}
-        />
+        {currentUser && currentChannel && (
+          <Messages
+            key={currentChannel && currentChannel.id}
+            currentChannel={currentChannel}
+            currentUser={currentUser}
+          />
+        )}
       </Grid.Column>
       <Grid.Column width="4">
         <MetaPanel />
