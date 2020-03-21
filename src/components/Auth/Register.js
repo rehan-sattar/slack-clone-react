@@ -9,6 +9,7 @@ import {
   Icon,
 } from 'semantic-ui-react'
 import { Link } from 'react-router-dom'
+import md5 from 'md5'
 import firebase from '../../firebase'
 
 export default function Register() {
@@ -22,6 +23,7 @@ export default function Register() {
   const [registerUserState, setRegisterUserState] = React.useState(initialState)
   const [errors, setErrors] = React.useState([])
   const [status, setStatus] = React.useState('')
+  const [userRef, _] = React.useState(firebase.database().ref('/users'))
 
   const handleChange = event => {
     setRegisterUserState({
@@ -60,26 +62,43 @@ export default function Register() {
     }
   }
 
-  const onSubmit = event => {
+  const onSubmit = async event => {
     event.preventDefault()
     if (formIsValid()) {
       const { email, password } = registerUserState
       const errors = []
       setErrors(errors)
       setStatus('PENDING')
-      firebase
-        .auth()
-        .createUserWithEmailAndPassword(email, password)
-        .then(createdUser => {
+      try {
+        const createdUser = await firebase
+          .auth()
+          .createUserWithEmailAndPassword(email, password)
+
+        try {
+          await createdUser.user.updateProfile({
+            displayName: userName,
+            photoURL: `https://www.gravatar.com/avatar/${md5(
+              createdUser.user.email
+            )}?d=identicon`,
+          })
+          await saveUser(createdUser)
           setStatus('RESOLVED')
-          console.log(createdUser)
-        })
-        .catch(err => {
+        } catch (err) {
           setStatus('RESOLVED')
           setErrors(errors.concat({ message: err.message }))
-        })
+        }
+      } catch (err) {
+        setStatus('RESOLVED')
+        setErrors(errors.concat({ message: err.message }))
+      }
     }
   }
+
+  const saveUser = createdUser =>
+    userRef.child(createdUser.user.uid).set({
+      name: createdUser.user.displayName,
+      photoUrl: createdUser.user.photoURL,
+    })
 
   const handleInputError = (errors, inputName) => {
     return errors.some(err =>
