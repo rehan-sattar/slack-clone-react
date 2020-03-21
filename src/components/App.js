@@ -10,14 +10,24 @@ import MetaPanel from './MetaPanel'
 import './App.css'
 
 export default function App() {
-  const currentUser = useSelector(state => state.user.currentUser)
+  const { currentUser, currentChannel } = useSelector(({ user, channel }) => ({
+    currentUser: user.currentUser,
+    currentChannel: channel.currentChannel,
+  }))
 
   return (
     <Grid columns="equal" className="app">
       <ColorPanel />
-      <SidePanel currentUser={currentUser} />
+      <SidePanel
+        key={currentUser && currentUser.id}
+        currentUser={currentUser}
+      />
       <Grid.Column style={{ marginLeft: 320 }}>
-        <Messages />
+        <Messages
+          key={currentChannel && currentChannel.id}
+          currentChannel={currentChannel}
+          currentUser={currentUser}
+        />
       </Grid.Column>
       <Grid.Column width="4">
         <MetaPanel />

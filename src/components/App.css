@@ -4,3 +4,20 @@ body,
   height: 100vh;
   padding: 1em;
 }
+
+/* messages */
+.messages {
+  height: 450px;
+  overflow-y: scroll;
+}
+
+/* messages form */
+
+.message__form {
+  position: fixed !important;
+  bottom: 1em;
+  margin-left: 320px !important;
+  left: 0;
+  right: 1em;
+  z-index: 200;
+}
