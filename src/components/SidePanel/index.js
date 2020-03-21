@@ -3,7 +3,7 @@ import { Menu } from 'semantic-ui-react'
 
 import UserPanel from './UserPanel'
 
-export default function SidePanel() {
+export default function SidePanel({ currentUser }) {
   return (
     <Menu
       inverted
@@ -13,7 +13,7 @@ export default function SidePanel() {
       vertical
       style={{ fontSize: '1.2rem' }}
     >
-      <UserPanel />
+      <UserPanel currentUser={currentUser} />
     </Menu>
   )
 }

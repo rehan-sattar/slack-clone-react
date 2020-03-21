@@ -1,15 +1,17 @@
-import React from 'react'
-import { Grid, Icon, Header, Dropdown } from 'semantic-ui-react'
+import React, { useState } from 'react'
+import { Grid, Icon, Header, Dropdown, Image } from 'semantic-ui-react'
 
 import firebase from '../../firebase'
 
-export default function UserPanel() {
+export default function UserPanel({ currentUser }) {
+  const [user] = useState(currentUser)
+
   const userActions = () => [
     {
       key: 'user',
       text: (
         <span>
-          Signed in as: <strong>user</strong>
+          Signed in as: <strong>{user.displayName}</strong>
         </span>
       ),
       disabled: true,
@@ -35,11 +37,15 @@ export default function UserPanel() {
             <Icon name="code" />
             <Header.Content>Greetings!</Header.Content>
           </Header>
+          <Header inverted as="h4" style={{ padding: '1.2em' }}>
+            <Image avatar src={user.photoURL} style={{ marginRight: '10px' }} />
+            {/* User menu */}
+            <Dropdown
+              trigger={<span>{user.displayName}</span>}
+              options={userActions()}
+            />
+          </Header>
         </Grid.Row>
-        {/* User menu */}
-        <Header inverted inverted as="h4" style={{ padding: '1.2em' }}>
-          <Dropdown trigger={<span>User</span>} options={userActions()} />
-        </Header>
       </Grid.Column>
     </Grid>
   )
