@@ -17,20 +17,25 @@ import {
   withRouter,
 } from 'react-router-dom'
 import { Provider, useDispatch, useSelector } from 'react-redux'
-import { setUser } from './store/auth/actions'
+import { setUser, clearUser } from './store/auth/actions'
 
 const Root = () => {
   const history = useHistory()
   const dispatch = useDispatch()
   const isLoading = useSelector(state => state.user.isLoading)
+
   useEffect(() => {
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         dispatch(setUser(user))
         history.push('/')
+      } else {
+        history.push('/login')
+        dispatch(clearUser())
       }
     })
   }, [history, dispatch])
+
   return isLoading ? (
     <Spinner />
   ) : (
