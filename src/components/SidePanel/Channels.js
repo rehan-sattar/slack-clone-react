@@ -23,8 +23,13 @@ export default function Channels() {
     })
   }
 
+  const removeChannelListeners = () => channelsRef.off()
+
   useEffect(() => {
     registerGetAllChanelLister()
+    return () => {
+      removeChannelListeners()
+    }
   }, [])
 
   useEffect(() => {
