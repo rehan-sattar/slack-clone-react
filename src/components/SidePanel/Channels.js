@@ -13,6 +13,8 @@ export default function Channels() {
   const [channelDesc, setChannelDesc] = useState('')
   const [channelsRef] = useState(firebase.database().ref('/channels'))
   const [channels, setChannels] = useState([])
+  const [loadedFirst, setLoadedFirst] = useState(true)
+  const [activeChannel, setActiveChannel] = useState('')
 
   const registerGetAllChanelLister = () => {
     channelsRef.on('child_added', snap => {
@@ -24,6 +26,17 @@ export default function Channels() {
   useEffect(() => {
     registerGetAllChanelLister()
   }, [])
+
+  useEffect(() => {
+    const firstChannel = channels[0]
+    if (loadedFirst && channels.length > 0) {
+      dispatch(setChannel(firstChannel))
+      setActiveChannel(firstChannel.id)
+      setLoadedFirst(false)
+    }
+  }, [channels])
+
+  const openModal = () => setModal(true)
 
   const closeModal = () => {
     // reset the state
@@ -55,12 +68,11 @@ export default function Channels() {
   }
 
   const channelClickHandler = channel => {
+    setActiveChannel(channel.id)
     dispatch(setChannel(channel))
   }
 
   const isFormValid = () => channelName && channelDesc
-
-  const openModal = () => setModal(true)
 
   const renderChannels = _channels =>
     _channels.length > 0 &&
@@ -70,6 +82,7 @@ export default function Channels() {
         onClick={() => channelClickHandler(channel)}
         name={channel.name}
         style={{ opacity: 0.7 }}
+        active={channel.id === activeChannel}
       >
         # {channel.name}
       </Menu.Item>
