@@ -40,7 +40,6 @@ export default function Login() {
         const signedUser = await firebase
           .auth()
           .signInWithEmailAndPassword(email, password)
-        console.log('SIGNED USER: ', signedUser)
         setStatus('RESOLVED')
       } catch (err) {
         setStatus('RESOLVED')
