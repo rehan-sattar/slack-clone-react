@@ -23,7 +23,7 @@ export default function Register() {
   const [registerUserState, setRegisterUserState] = React.useState(initialState)
   const [errors, setErrors] = React.useState([])
   const [status, setStatus] = React.useState('')
-  const [userRef, _] = React.useState(firebase.database().ref('/users'))
+  const [userRef] = React.useState(firebase.database().ref('/users'))
 
   const handleChange = event => {
     setRegisterUserState({

@@ -37,9 +37,7 @@ export default function Login() {
       setStatus('PENDING')
 
       try {
-        const signedUser = await firebase
-          .auth()
-          .signInWithEmailAndPassword(email, password)
+        await firebase.auth().signInWithEmailAndPassword(email, password)
         setStatus('RESOLVED')
       } catch (err) {
         setStatus('RESOLVED')
