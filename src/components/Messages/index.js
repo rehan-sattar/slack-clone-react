@@ -40,10 +40,12 @@ export default function Messages({ currentUser, currentChannel }) {
       <MessagesHeader />
 
       <Segment className="messages">
-        {messages.length > 0 &&
-          messages.map(message => (
-            <Message key={message.timestamp} message={message} user={user} />
-          ))}
+        <Comment.Group>
+          {messages.length > 0 &&
+            messages.map(message => (
+              <Message key={message.timestamp} message={message} user={user} />
+            ))}
+        </Comment.Group>
       </Segment>
 
       <MessagesForm

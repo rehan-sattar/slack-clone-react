@@ -7,8 +7,6 @@ import Spinner from './components/Spinner'
 import firebase from './firebase'
 import store from './store'
 
-import 'semantic-ui-css/semantic.min.css'
-
 import {
   BrowserRouter,
   Switch,
@@ -18,6 +16,8 @@ import {
 } from 'react-router-dom'
 import { Provider, useDispatch, useSelector } from 'react-redux'
 import { setUser, clearUser } from './store/auth/actions'
+
+import 'semantic-ui-css/semantic.min.css'
 
 const Root = () => {
   const history = useHistory()

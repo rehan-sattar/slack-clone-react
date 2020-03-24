@@ -21,3 +21,10 @@ body,
   right: 1em;
   z-index: 200;
 }
+
+/* message component */
+
+.message__self {
+  border-left: 1px solid orange;
+  padding-left: 8px;
+}
