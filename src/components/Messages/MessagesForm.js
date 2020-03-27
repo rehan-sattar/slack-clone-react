@@ -4,6 +4,7 @@ import { Segment, Input, Button } from 'semantic-ui-react'
 
 import firebase from '../../firebase'
 import UploadFileModal from './UploadFileModal'
+import ProgressBar from './ProgressBar'
 
 export default function MessagesForm({
   currentChannel,
@@ -109,7 +110,7 @@ export default function MessagesForm({
   const uploadFile = (file, metaData) => {
     setPathToUpload(currentChannel.id)
     const filePath = `chat/public/${uuid()}.jpg`
-    setUploadState('STARTED')
+    setUploadState('UPLOADING')
     const fileReference = storageRef.child(filePath).put(file, metaData)
     setUploadTask(fileReference)
   }
@@ -148,13 +149,13 @@ export default function MessagesForm({
           icon="cloud upload"
           onClick={openModal}
         />
-
-        <UploadFileModal
-          open={modal}
-          closeModal={closeModal}
-          uploadFile={uploadFile}
-        />
       </Button.Group>
+      <UploadFileModal
+        open={modal}
+        closeModal={closeModal}
+        uploadFile={uploadFile}
+      />
+      <ProgressBar uploadPercent={percentUpload} uploadState={uploadState} />
     </Segment>
   )
 }

@@ -28,3 +28,9 @@ body,
   border-left: 1px solid orange;
   padding-left: 8px;
 }
+
+/* progress bar styles */
+
+.progress__bar {
+  margin: 0.3em 0 0 0 !important;
+}
