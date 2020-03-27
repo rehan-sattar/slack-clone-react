@@ -8,13 +8,18 @@ export default function UploadFileModal({ open, closeModal, uploadFile }) {
   const handleFileChange = event => {
     const file = event.target.files[0]
     if (file !== null) {
-      if (isFileAuthorized(file.name)) {
-        const metaData = {
-          contentType: mime.contentType(file.name),
-        }
-        uploadFile(file, metaData)
-        closeModal()
+      setFile(file)
+    }
+  }
+
+  const handleUpload = () => {
+    if (isFileAuthorized(file.name)) {
+      const metaData = {
+        contentType: mime.contentType(file.name),
       }
+      uploadFile(file, metaData)
+      clearFile()
+      closeModal()
     }
   }
 
@@ -31,12 +36,11 @@ export default function UploadFileModal({ open, closeModal, uploadFile }) {
           fluid
           type="file"
           label="Upload File(jpeg, png)"
-          value={file}
           onChange={handleFileChange}
         />
       </Modal.Content>
       <Modal.Actions>
-        <Button onClick={setFile} color="green">
+        <Button onClick={handleUpload} color="green">
           <Icon name="cloud upload" /> Upload
         </Button>
         <Button

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import uuid from 'uuid/v5'
+import { v4 as uuid } from 'uuid'
 import { Segment, Input, Button } from 'semantic-ui-react'
 
 import firebase from '../../firebase'
@@ -26,6 +26,7 @@ export default function MessagesForm({
       uploadTask.on(
         'state_changed',
         snap => {
+          console.log('SNAP:: ', snap)
           const percentage = Math.round(
             (snap.bytesTransferred / snap.totalBytes) * 100
           )
@@ -37,7 +38,7 @@ export default function MessagesForm({
         },
         () => {
           uploadTask.snapshot.ref
-            .getDownloadedUrl()
+            .getDownloadURL()
             .then(downloadedUrl => {
               sendFileMessage(downloadedUrl, pathToUpload)
             })
@@ -55,6 +56,12 @@ export default function MessagesForm({
       .child(filePath)
       .push()
       .set(createMessage(downloadedFileUrl))
+      .then(() => {
+        setUploadState('DONE')
+      })
+      .catch(err => {
+        setErrors(errors => [...errors, err])
+      })
   }
 
   const createMessage = (file = null) => {
@@ -67,9 +74,9 @@ export default function MessagesForm({
       },
     }
     if (file !== null) {
-      messageBody['file'] = file
+      messageBody['image'] = file
     } else {
-      messagesRef['content'] = message
+      messageBody['content'] = message
     }
     return messageBody
   }
@@ -102,7 +109,7 @@ export default function MessagesForm({
   const uploadFile = (file, metaData) => {
     setPathToUpload(currentChannel.id)
     const filePath = `chat/public/${uuid()}.jpg`
-    setUploadState()
+    setUploadState('STARTED')
     const fileReference = storageRef.child(filePath).put(file, metaData)
     setUploadTask(fileReference)
   }
