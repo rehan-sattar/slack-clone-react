@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, isValidElement } from 'react'
 import { Segment, Comment } from 'semantic-ui-react'
 
 import MessagesHeader from './MessagesHeader'
@@ -35,9 +35,27 @@ export default function Messages({ currentUser, currentChannel }) {
 
   const removeAllListeners = () => {}
 
+  const getChannelName = channel => (channel ? `#${channel.name}` : '')
+
+  const getUniqueUsers = messages => {
+    const uniqueUsers = messages.reduce((acc, message) => {
+      if (!acc.includes(message.user.name)) {
+        acc.push(message.user.name)
+      }
+      return acc
+    }, [])
+
+    const numUniqueUsers = uniqueUsers.length
+    const areUserPlurals = numUniqueUsers > 1 || numUniqueUsers === 0
+    return `${numUniqueUsers} user${areUserPlurals && 's'}`
+  }
+
   return (
     <>
-      <MessagesHeader />
+      <MessagesHeader
+        channelName={getChannelName(channel)}
+        users={getUniqueUsers(messages)}
+      />
 
       <Segment className="messages">
         <Comment.Group>
