@@ -1,7 +1,12 @@
 import React from 'react'
 import { Header, Segment, Input, Icon } from 'semantic-ui-react'
 
-export default function MessagesHeader({ channelName, users }) {
+export default function MessagesHeader({
+  channelName,
+  users,
+  searchTerm,
+  handleSearchMessages,
+}) {
   return (
     <Segment clearing>
       <Header fluid="true" floated="left" as="h2" style={{ marginBottom: 0 }}>
@@ -12,7 +17,13 @@ export default function MessagesHeader({ channelName, users }) {
         <Header.Subheader>{users}</Header.Subheader>
       </Header>
       <Header floated="right">
-        <Input size="mini" icon="search" placeholder="Search" />
+        <Input
+          size="mini"
+          icon="search"
+          placeholder="Search"
+          value={searchTerm}
+          onChange={handleSearchMessages}
+        />
       </Header>
     </Segment>
   )
