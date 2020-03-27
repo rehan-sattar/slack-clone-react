@@ -6,6 +6,7 @@ export default function MessagesHeader({
   users,
   searchTerm,
   handleSearchMessages,
+  searching,
 }) {
   return (
     <Segment clearing>
@@ -23,6 +24,7 @@ export default function MessagesHeader({
           placeholder="Search"
           value={searchTerm}
           onChange={handleSearchMessages}
+          loading={searching}
         />
       </Header>
     </Segment>

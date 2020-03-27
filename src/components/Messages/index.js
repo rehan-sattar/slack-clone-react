@@ -85,14 +85,18 @@ export default function Messages({ currentUser, currentChannel }) {
    */
   useEffect(() => {
     const regex = new RegExp(searchTerm, 'gi')
-
     const results = messages.reduce((acc, message) => {
-      if (message.content && message.content.match(regex)) {
+      if (
+        (message.content && message.content.match(regex)) ||
+        message.user.name.match(regex)
+      ) {
         acc.push(message)
       }
       return acc
     }, [])
     setSearchResults(results)
+    //setting the search indicator after one second
+    setTimeout(() => setSearchingMessages(false), 800)
   }, [searchTerm])
 
   /**
@@ -116,6 +120,7 @@ export default function Messages({ currentUser, currentChannel }) {
         users={getUniqueUsers(messages)}
         searchTerm={searchTerm}
         handleSearchMessages={handleSearchMessages}
+        searching={searchingMessages}
       />
 
       <Segment className="messages">
