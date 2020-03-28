@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Menu, Icon, Modal, Form, Input, Button } from 'semantic-ui-react'
 import { useSelector, useDispatch } from 'react-redux'
 
-import { setChannel } from '../../store/channels/actions'
+import { setChannel, setPrivateChannel } from '../../store/channels/actions'
 import firebase from '../../firebase'
 
 export default function Channels() {
@@ -75,6 +75,7 @@ export default function Channels() {
   const channelClickHandler = channel => {
     setActiveChannel(channel.id)
     dispatch(setChannel(channel))
+    dispatch(setPrivateChannel(false))
   }
 
   const isFormValid = () => channelName && channelDesc

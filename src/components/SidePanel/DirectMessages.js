@@ -10,13 +10,14 @@ export default function DirectMessages({ currentUser }) {
   const [userRef] = useState(firebase.database().ref('users'))
   const [connectedRef] = useState(firebase.database().ref('.info/connected'))
   const [presenceRef] = useState(firebase.database().ref('presence'))
-
+  const [activeChannel, setActiveChannel] = useState('')
   const dispatch = useDispatch()
 
   useEffect(() => {
     if (currentUser) {
       addListeners(currentUser.uid)
     }
+    return () => {}
   }, [])
 
   /**
@@ -67,13 +68,14 @@ export default function DirectMessages({ currentUser }) {
   const isUserOnline = user => user.status === 'online'
 
   const changeChannel = user => {
-    const channelId = getChannelId(user.id)
+    const channelId = getChannelId(user.uid)
     const channelData = {
       id: channelId,
       name: user.name,
     }
     dispatch(setChannel(channelData))
     dispatch(setPrivateChannel(true))
+    setActiveChannel(user.uid)
   }
 
   const getChannelId = userId => {
@@ -96,6 +98,7 @@ export default function DirectMessages({ currentUser }) {
         return (
           <Menu.Item
             key={user.uid}
+            active={activeChannel === user.uid}
             onClick={() => changeChannel(user)}
             style={{ opacity: 0.7, fontStyle: 'italic' }}
           >

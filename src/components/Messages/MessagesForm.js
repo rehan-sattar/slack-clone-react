@@ -10,6 +10,7 @@ export default function MessagesForm({
   currentChannel,
   currentUser,
   messagesRef,
+  isChannelPrivate,
 }) {
   const [message, setMessage] = useState('')
   const [status, setStatus] = useState('IDLE')
@@ -27,7 +28,6 @@ export default function MessagesForm({
       uploadTask.on(
         'state_changed',
         snap => {
-          console.log('SNAP:: ', snap)
           const percentage = Math.round(
             (snap.bytesTransferred / snap.totalBytes) * 100
           )
@@ -53,7 +53,7 @@ export default function MessagesForm({
   }, [uploadTask])
 
   const sendFileMessage = (downloadedFileUrl, filePath) => {
-    messagesRef
+    messagesRef()
       .child(filePath)
       .push()
       .set(createMessage(downloadedFileUrl))
@@ -91,7 +91,7 @@ export default function MessagesForm({
     if (message) {
       setStatus('PENDING')
       try {
-        await messagesRef
+        await messagesRef()
           .child(currentChannel.id)
           .push()
           .set(createMessage())
@@ -107,9 +107,13 @@ export default function MessagesForm({
     }
   }
 
+  const getFilePath = channelId => {
+    return isChannelPrivate ? `chat/private-${channelId}` : `chat/public`
+  }
+
   const uploadFile = (file, metaData) => {
     setPathToUpload(currentChannel.id)
-    const filePath = `chat/public/${uuid()}.jpg`
+    const filePath = `${getFilePath(currentChannel.id)}/${uuid()}.jpg`
     setUploadState('UPLOADING')
     const fileReference = storageRef.child(filePath).put(file, metaData)
     setUploadTask(fileReference)

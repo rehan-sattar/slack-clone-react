@@ -1,4 +1,5 @@
 import React, { useState, useEffect, isValidElement } from 'react'
+import { useSelector } from 'react-redux'
 import { Segment, Comment } from 'semantic-ui-react'
 
 import MessagesHeader from './MessagesHeader'
@@ -10,11 +11,16 @@ import firebase from '../../firebase'
 export default function Messages({ currentUser, currentChannel }) {
   const [user] = useState(currentUser)
   const [channel] = useState(currentChannel)
-  const [messagesRef] = useState(firebase.database().ref('/messages'))
+  const [messagesRef] = useState(firebase.database().ref('messages'))
+  const [privateMessagesRef] = useState(
+    firebase.database().ref('privateMessages')
+  )
   const [messages, setMessages] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [searchingMessages, setSearchingMessages] = useState(false)
   const [searchResults, setSearchResults] = useState([])
+
+  const isChannelPrivate = useSelector(state => state.channel.private)
 
   useEffect(() => {
     if (user && channel) {
@@ -35,20 +41,31 @@ export default function Messages({ currentUser, currentChannel }) {
    * Change listener to the channel, triggers whenever the message is added
    */
   const channelListener = channelId => {
-    messagesRef.child(channelId).on('child_added', snap => {
-      const message = snap.val()
-      setMessages(messages => [...messages, message])
-    })
+    getMessagesRef()
+      .child(channelId)
+      .on('child_added', snap => {
+        const message = snap.val()
+        setMessages(messages => [...messages, message])
+      })
   }
 
   const removeAllListeners = () => {}
 
   /**
    *
+   * @param {*} channel
+   */
+
+  const getMessagesRef = () => {
+    return isChannelPrivate ? privateMessagesRef : messagesRef
+  }
+  /**
+   *
    * @param {object} channel
    * returns the channel name
    */
-  const getChannelName = channel => (channel ? `#${channel.name}` : '')
+  const getChannelName = channel =>
+    channel && `${!isChannelPrivate ? '#' : '@'} ${channel.name}`
 
   /**
    *
@@ -121,6 +138,7 @@ export default function Messages({ currentUser, currentChannel }) {
         searchTerm={searchTerm}
         handleSearchMessages={handleSearchMessages}
         searching={searchingMessages}
+        isChannelPrivate={isChannelPrivate}
       />
 
       <Segment className="messages">
@@ -134,7 +152,8 @@ export default function Messages({ currentUser, currentChannel }) {
       <MessagesForm
         currentChannel={currentChannel}
         currentUser={currentUser}
-        messagesRef={messagesRef}
+        messagesRef={getMessagesRef}
+        isChannelPrivate={isChannelPrivate}
       />
     </>
   )
