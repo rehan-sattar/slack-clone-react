@@ -1,15 +1,47 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Menu, Icon } from 'semantic-ui-react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { useIsMount } from '../../hooks/isMount'
 
 import {
   setChannel as setChannelAction,
   setPrivateChannel,
 } from '../../store/channels/actions'
+import firebase from '../../firebase'
 
-export default function Starred() {
-  const [starredChannels, setStarredChannels] = React.useState([])
+export default function Starred({ currentUser }) {
+  const [starredChannels, setStarredChannels] = useState([])
+  const [userRef] = useState(firebase.database().ref('users'))
   const dispatch = useDispatch()
+  const isMount = useIsMount()
+
+  useEffect(() => {
+    userRef
+      .child(currentUser.uid)
+      .child('starred')
+      .on('child_added', snap => {
+        const starredChannel = { id: snap.key, ...snap.val() }
+        setStarredChannels(starredChannels => [
+          ...starredChannels,
+          starredChannel,
+        ])
+      })
+
+    // delete listener
+  }, [])
+
+  useEffect(() => {
+    userRef
+      .child(currentUser.uid)
+      .child('starred')
+      .on('child_removed', snap => {
+        const unStarredChannel = { id: snap.key, ...snap.val() }
+        const filteredChannels = starredChannels.filter(
+          sc => sc.id !== unStarredChannel.id
+        )
+        setStarredChannels(filteredChannels)
+      })
+  }, [starredChannels])
 
   const renderStarredChannels = channels =>
     channels.length > 0 &&
@@ -19,11 +51,7 @@ export default function Starred() {
         onClick={() => channelClickHandler(channel)}
         name={channel.name}
         style={{ opacity: 0.7 }}
-        active={''}
       >
-        {/* {getNotificationCount(channel) && (
-          <Label>{getNotificationCount(channel)}</Label>
-        )} */}
         # {channel.name}
       </Menu.Item>
     ))
@@ -34,7 +62,6 @@ export default function Starred() {
     dispatch(setPrivateChannel(false))
     dispatch(setChannelAction(channel))
   }
-
   return (
     <Menu.Menu style={{ paddingBottom: '2rem' }}>
       <Menu.Item>

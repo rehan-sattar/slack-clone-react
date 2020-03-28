@@ -17,7 +17,7 @@ export default function SidePanel({ currentUser }) {
       style={{ fontSize: '1.2rem' }}
     >
       <UserPanel currentUser={currentUser} />
-      <Starred />
+      <Starred currentUser={currentUser} />
       <Channels />
       <DirectMessages currentUser={currentUser} />
     </Menu>
