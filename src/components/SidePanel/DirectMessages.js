@@ -61,7 +61,7 @@ export default function DirectMessages({ currentUser }) {
       }
       return acc.concat(user)
     }, [])
-
+    console.log(updatedUsers)
     setUsers(updatedUsers)
   }
 
@@ -95,6 +95,7 @@ export default function DirectMessages({ currentUser }) {
         (2) <Icon name="add" onClick={() => {}} />
       </Menu.Item>
       {users.map((user, index) => {
+        console.log(isUserOnline(user))
         return (
           <Menu.Item
             key={user.uid}
