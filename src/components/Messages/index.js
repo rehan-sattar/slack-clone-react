@@ -1,6 +1,7 @@
-import React, { useState, useEffect, isValidElement } from 'react'
+import React, { useState, useEffect, isValidElement, useRef } from 'react'
 import { useSelector } from 'react-redux'
 import { Segment, Comment } from 'semantic-ui-react'
+import { useIsMount } from '../../hooks/isMount'
 
 import MessagesHeader from './MessagesHeader'
 import MessagesForm from './MessagesForm'
@@ -9,25 +10,28 @@ import Message from './Message'
 import firebase from '../../firebase'
 
 export default function Messages({ currentUser, currentChannel }) {
+  const isMount = useIsMount()
   const [user] = useState(currentUser)
   const [channel] = useState(currentChannel)
   const [messagesRef] = useState(firebase.database().ref('messages'))
   const [privateMessagesRef] = useState(
     firebase.database().ref('privateMessages')
   )
+  const [userRef] = useState(firebase.database().ref('users'))
   const [messages, setMessages] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [searchingMessages, setSearchingMessages] = useState(false)
   const [searchResults, setSearchResults] = useState([])
+  const [isStarred, setIsStarred] = useState(false)
+
+  const didMountRef = useRef(false)
 
   const isChannelPrivate = useSelector(state => state.channel.private)
 
   useEffect(() => {
     if (user && channel) {
       addListeners(channel)
-    }
-    return () => {
-      removeAllListeners()
+      addUserStarListener(channel.id, user.uid)
     }
   }, [])
 
@@ -48,6 +52,52 @@ export default function Messages({ currentUser, currentChannel }) {
         setMessages(messages => [...messages, message])
       })
   }
+
+  /**
+   * Star channel listener
+   */
+
+  const addUserStarListener = (channelId, userId) => {
+    userRef
+      .child(userId)
+      .child(`starred`)
+      .once('value')
+      .then(data => {
+        if (data.val() !== null) {
+          const channelIds = Object.keys(data.val())
+          const prevStarred = channelIds.includes(channelId)
+          setIsStarred(prevStarred)
+        }
+      })
+  }
+  const handleStarChannel = () => {
+    setIsStarred(!isStarred)
+  }
+
+  useEffect(() => {
+    // If is starred! then add this channel to favorites
+    if (!isMount) {
+      if (isStarred) {
+        userRef.child(`${user.uid}/starred`).update({
+          [channel.id]: {
+            name: channel.name,
+            description: channel.description,
+            createdBy: {
+              name: channel.createdBy.name,
+              avatar: channel.createdBy.avatar,
+            },
+          },
+        })
+      } else {
+        // if unstarred, then remove this channel from favorites
+        userRef.child(`${user.uid}/starred/${channel.id}`).remove(err => {
+          if (err !== null) {
+            console.error('ERROR: ', err)
+          }
+        })
+      }
+    }
+  }, [isStarred])
 
   const removeAllListeners = () => {}
 
@@ -139,6 +189,8 @@ export default function Messages({ currentUser, currentChannel }) {
         handleSearchMessages={handleSearchMessages}
         searching={searchingMessages}
         isChannelPrivate={isChannelPrivate}
+        handleStarChannel={handleStarChannel}
+        isStarred={isStarred}
       />
 
       <Segment className="messages">

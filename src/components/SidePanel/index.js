@@ -2,6 +2,7 @@ import React from 'react'
 import { Menu } from 'semantic-ui-react'
 
 import UserPanel from './UserPanel'
+import Starred from './Starred'
 import Channels from './Channels'
 import DirectMessages from './DirectMessages'
 
@@ -16,6 +17,7 @@ export default function SidePanel({ currentUser }) {
       style={{ fontSize: '1.2rem' }}
     >
       <UserPanel currentUser={currentUser} />
+      <Starred />
       <Channels />
       <DirectMessages currentUser={currentUser} />
     </Menu>

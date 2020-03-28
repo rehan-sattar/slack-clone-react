@@ -9,6 +9,8 @@ export default function MessagesHeader({
   handleSearchMessages,
   searching,
   isChannelPrivate,
+  handleStarChannel,
+  isStarred,
 }) {
   return (
     <Segment clearing>
@@ -16,7 +18,13 @@ export default function MessagesHeader({
         <span>
           {' '}
           {channelName}
-          {!isChannelPrivate && <Icon name="star outline" color="black" />}
+          {!isChannelPrivate && (
+            <Icon
+              onClick={handleStarChannel}
+              name={isStarred ? 'star' : 'star outline'}
+              color={isStarred ? 'yellow' : 'black'}
+            />
+          )}
         </span>
         <Header.Subheader>{users}</Header.Subheader>
       </Header>
