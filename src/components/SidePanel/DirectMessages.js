@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
+import { useDispatch } from 'react-redux'
 import { Menu, Icon } from 'semantic-ui-react'
 
+import { setChannel, setPrivateChannel } from '../../store/channels/actions'
 import firebase from '../../firebase'
 
 export default function DirectMessages({ currentUser }) {
@@ -8,6 +10,8 @@ export default function DirectMessages({ currentUser }) {
   const [userRef] = useState(firebase.database().ref('users'))
   const [connectedRef] = useState(firebase.database().ref('.info/connected'))
   const [presenceRef] = useState(firebase.database().ref('presence'))
+
+  const dispatch = useDispatch()
 
   useEffect(() => {
     if (currentUser) {
@@ -62,6 +66,24 @@ export default function DirectMessages({ currentUser }) {
 
   const isUserOnline = user => user.status === 'online'
 
+  const changeChannel = user => {
+    const channelId = getChannelId(user.id)
+    const channelData = {
+      id: channelId,
+      name: user.name,
+    }
+    dispatch(setChannel(channelData))
+    dispatch(setPrivateChannel(true))
+  }
+
+  const getChannelId = userId => {
+    const currentUserId = currentUser.uid
+    // Check for creating a unique path...
+    return userId < currentUserId
+      ? `${userId}/${currentUserId}`
+      : `${currentUserId}/${userId}`
+  }
+
   return (
     <Menu.Menu>
       <Menu.Item>
@@ -74,7 +96,7 @@ export default function DirectMessages({ currentUser }) {
         return (
           <Menu.Item
             key={user.uid}
-            onClick={() => console.log(user)}
+            onClick={() => changeChannel(user)}
             style={{ opacity: 0.7, fontStyle: 'italic' }}
           >
             <Icon name="circle" color={isUserOnline(user) ? 'green' : 'red'} />@{' '}
