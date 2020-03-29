@@ -24,7 +24,7 @@ export default function App() {
 
   return (
     <Grid columns="equal" className="app">
-      <ColorPanel />
+      {/* <ColorPanel currentUser={currentUser} /> */}
       <SidePanel
         key={currentUser && currentUser.id}
         currentUser={currentUser}
