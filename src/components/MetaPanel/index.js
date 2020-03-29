@@ -1,7 +1,7 @@
 import React from 'react'
-import { Segment, Accordion, Header, Icon } from 'semantic-ui-react'
+import { Segment, Accordion, Header, Icon, Image } from 'semantic-ui-react'
 
-export default function MetaPanel({ isPrivateChannel }) {
+export default function MetaPanel({ isPrivateChannel, currentChannel }) {
   const [activeIndex, setActiveIndex] = React.useState(0)
 
   const handleAccordionChange = (event, titleProps) => {
@@ -15,9 +15,9 @@ export default function MetaPanel({ isPrivateChannel }) {
   }
 
   return (
-    <Segment>
+    <Segment loading={!currentChannel}>
       <Header as="h3" attached="top">
-        About # channel
+        About # {currentChannel && currentChannel.name}
       </Header>
 
       <Accordion styled attached="true">
@@ -31,7 +31,7 @@ export default function MetaPanel({ isPrivateChannel }) {
           Channel Details
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 0}>
-          Channel Details
+          {currentChannel && currentChannel.description}
         </Accordion.Content>
         <Accordion.Title
           active={activeIndex === 1}
@@ -55,7 +55,13 @@ export default function MetaPanel({ isPrivateChannel }) {
           Created By
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 2}>
-          Creator
+          <Header as="h3">
+            <Image
+              circular
+              src={currentChannel && currentChannel.createdBy.avatar}
+            />
+            {currentChannel && currentChannel.createdBy.name}
+          </Header>
         </Accordion.Content>
       </Accordion>
     </Segment>

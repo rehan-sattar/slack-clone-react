@@ -35,7 +35,10 @@ export default function App() {
         )}
       </Grid.Column>
       <Grid.Column width="4">
-        <MetaPanel isPrivateChannel={isPrivateChannel} />
+        <MetaPanel
+          isPrivateChannel={isPrivateChannel}
+          currentChannel={currentChannel}
+        />
       </Grid.Column>
     </Grid>
   )
