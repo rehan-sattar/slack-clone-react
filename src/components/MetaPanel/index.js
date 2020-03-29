@@ -1,7 +1,19 @@
 import React from 'react'
-import { Segment, Accordion, Header, Icon, Image } from 'semantic-ui-react'
+import {
+  Segment,
+  Accordion,
+  Header,
+  Icon,
+  Image,
+  List,
+  ListItem,
+} from 'semantic-ui-react'
 
-export default function MetaPanel({ isPrivateChannel, currentChannel }) {
+export default function MetaPanel({
+  isPrivateChannel,
+  currentChannel,
+  userPosts,
+}) {
   const [activeIndex, setActiveIndex] = React.useState(0)
 
   const handleAccordionChange = (event, titleProps) => {
@@ -9,6 +21,25 @@ export default function MetaPanel({ isPrivateChannel, currentChannel }) {
     const newIndex = activeIndex === index ? -1 : index
     setActiveIndex(newIndex)
   }
+
+  const renderUserPosts = () => {
+    return Object.entries(userPosts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([key, value], i) => {
+        return (
+          <ListItem key={key}>
+            <Image avatar src={value.avatar} />
+            <List.Content>
+              <List.Header as="a">{key}</List.Header>
+              <List.Description>{getPostText(value.count)}</List.Description>
+            </List.Content>
+          </ListItem>
+        )
+      })
+  }
+
+  const getPostText = count =>
+    count > 1 || count === 0 ? `${count} posts` : `${count} post`
 
   if (isPrivateChannel) {
     return null
@@ -43,7 +74,7 @@ export default function MetaPanel({ isPrivateChannel, currentChannel }) {
           Top posters
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 1}>
-          Userss..
+          <List>{userPosts && renderUserPosts(userPosts)}</List>
         </Accordion.Content>
         <Accordion.Title
           active={activeIndex === 2}

@@ -1,7 +1,8 @@
 import React, { useState, useEffect, isValidElement, useRef } from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { Segment, Comment } from 'semantic-ui-react'
 import { useIsMount } from '../../hooks/isMount'
+import { setUserPosts } from '../../store/channels/actions'
 
 import MessagesHeader from './MessagesHeader'
 import MessagesForm from './MessagesForm'
@@ -24,8 +25,7 @@ export default function Messages({ currentUser, currentChannel }) {
   const [searchResults, setSearchResults] = useState([])
   const [isStarred, setIsStarred] = useState(false)
 
-  const didMountRef = useRef(false)
-
+  const dispatch = useDispatch()
   const isChannelPrivate = useSelector(state => state.channel.private)
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export default function Messages({ currentUser, currentChannel }) {
   /**
    *
    * @param {string} channelId
-   * Change listener to the channel, triggers whenever the message is added
+   * Change listener to the channel, triggers whenever the message is added, get all the messages of channel
    */
   const channelListener = channelId => {
     getMessagesRef()
@@ -100,11 +100,6 @@ export default function Messages({ currentUser, currentChannel }) {
   }, [isStarred])
 
   const removeAllListeners = () => {}
-
-  /**
-   *
-   * @param {*} channel
-   */
 
   const getMessagesRef = () => {
     return isChannelPrivate ? privateMessagesRef : messagesRef
@@ -179,6 +174,31 @@ export default function Messages({ currentUser, currentChannel }) {
       ))
     )
   }
+
+  /**
+   *
+   * @description counts the total posts
+   * @return {object} users with total post count & avatar
+   */
+
+  const countUserPosts = () => {
+    const userPosts = messages.reduce((acc, message) => {
+      if (message.user.name in acc) {
+        acc[message.user.name].count += 1
+      } else {
+        acc[message.user.name] = {
+          avatar: message.user.avatar,
+          count: 1,
+        }
+      }
+      return acc
+    }, {})
+    dispatch(setUserPosts(userPosts))
+  }
+
+  useEffect(() => {
+    countUserPosts()
+  }, [messages])
 
   return (
     <>

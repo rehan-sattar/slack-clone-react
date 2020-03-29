@@ -10,13 +10,17 @@ import MetaPanel from './MetaPanel'
 import './App.css'
 
 export default function App() {
-  const { currentUser, currentChannel, isPrivateChannel } = useSelector(
-    ({ user, channel }) => ({
-      currentUser: user.currentUser,
-      currentChannel: channel.currentChannel,
-      isPrivateChannel: channel.private,
-    })
-  )
+  const {
+    currentUser,
+    currentChannel,
+    isPrivateChannel,
+    userPosts,
+  } = useSelector(({ user, channel }) => ({
+    currentUser: user.currentUser,
+    currentChannel: channel.currentChannel,
+    isPrivateChannel: channel.private,
+    userPosts: channel.userPosts,
+  }))
 
   return (
     <Grid columns="equal" className="app">
@@ -38,6 +42,7 @@ export default function App() {
         <MetaPanel
           isPrivateChannel={isPrivateChannel}
           currentChannel={currentChannel}
+          userPosts={userPosts}
         />
       </Grid.Column>
     </Grid>
