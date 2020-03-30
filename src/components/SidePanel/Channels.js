@@ -24,6 +24,7 @@ export default function Channels() {
   const [channelDesc, setChannelDesc] = useState('')
   const [channelsRef] = useState(firebase.database().ref('channels'))
   const [messagesRef] = useState(firebase.database().ref('messages'))
+  const [typingRef] = useState(firebase.database().ref('typing'))
   const [currentChannel, setCurrentChannel] = useState(null)
   const [notifications, setNotifications] = useState([])
   const [channels, setChannels] = useState([])
@@ -107,10 +108,15 @@ export default function Channels() {
     setModal(false)
   }
 
-  const channelClickHandler = channel => {
+  const channelClickHandler = async channel => {
     setActiveChannel(channel.id)
     setCurrentChannel(channel)
     clearNotifications()
+    // remove the user typing
+    await typingRef
+      .child(currentChannel.id)
+      .child(currentUser.uid)
+      .remove()
     dispatch(setChannelAction(channel))
     dispatch(setPrivateChannel(false))
   }

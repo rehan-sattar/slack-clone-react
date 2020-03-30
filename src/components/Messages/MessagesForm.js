@@ -17,6 +17,7 @@ export default function MessagesForm({
   const [errors, setErrors] = useState([])
   const [modal, setModal] = useState(false)
   const [storageRef] = useState(firebase.storage().ref())
+  const [typingRef] = useState(firebase.database().ref('typing'))
   const [uploadTask, setUploadTask] = useState(null)
   const [percentUpload, setPercentUpload] = useState(0)
   const [uploadState, setUploadState] = useState('')
@@ -95,6 +96,10 @@ export default function MessagesForm({
           .child(currentChannel.id)
           .push()
           .set(createMessage())
+        await typingRef
+          .child(currentChannel.id)
+          .child(currentUser.uid)
+          .remove()
         resetState()
         setStatus('RESOLVED')
       } catch (err) {
@@ -119,6 +124,20 @@ export default function MessagesForm({
     setUploadTask(fileReference)
   }
 
+  const handleKeyDown = () => {
+    if (message) {
+      typingRef
+        .child(currentChannel.id)
+        .child(currentUser.uid)
+        .set(currentUser.displayName)
+    } else {
+      typingRef
+        .child(currentChannel.id)
+        .child(currentUser.uid)
+        .remove()
+    }
+  }
+
   const openModal = () => setModal(true)
 
   const closeModal = () => setModal(false)
@@ -133,6 +152,7 @@ export default function MessagesForm({
         placeholder="Write your message..."
         value={message}
         onChange={event => setMessage(event.target.value)}
+        onKeyDown={handleKeyDown}
         className={
           errors.some(err => err.message.includes('message')) ? 'error' : ''
         }

@@ -7,6 +7,7 @@ import { setUserPosts } from '../../store/channels/actions'
 import MessagesHeader from './MessagesHeader'
 import MessagesForm from './MessagesForm'
 import Message from './Message'
+import Typing from './Typing'
 
 import firebase from '../../firebase'
 
@@ -19,10 +20,12 @@ export default function Messages({ currentUser, currentChannel }) {
     firebase.database().ref('privateMessages')
   )
   const [userRef] = useState(firebase.database().ref('users'))
+  const [typingRef] = useState(firebase.database().ref('typing'))
   const [messages, setMessages] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [searchingMessages, setSearchingMessages] = useState(false)
   const [searchResults, setSearchResults] = useState([])
+  const [typingUsers, setTypingUsers] = useState([])
   const [isStarred, setIsStarred] = useState(false)
 
   const dispatch = useDispatch()
@@ -37,6 +40,7 @@ export default function Messages({ currentUser, currentChannel }) {
 
   const addListeners = channel => {
     channelListener(channel.id)
+    typingListener(channel.id)
   }
 
   /**
@@ -70,6 +74,7 @@ export default function Messages({ currentUser, currentChannel }) {
         }
       })
   }
+
   const handleStarChannel = () => {
     setIsStarred(!isStarred)
   }
@@ -98,6 +103,29 @@ export default function Messages({ currentUser, currentChannel }) {
       }
     }
   }, [isStarred])
+
+  const typingListener = channelId => {
+    let allTypingUsers = []
+    typingRef.child(channelId).on('child_added', snap => {
+      if (snap.key !== currentUser.id) {
+        allTypingUsers.concat({
+          id: snap.key,
+          name: snap.val(),
+        })
+        setTypingUsers(allTypingUsers)
+      }
+    })
+    // TODO:
+    // typingRef.child(channelId).on('child_added', snap => {
+    //   if (snap.key !== currentUser.id) {
+    //     allTypingUsers.concat({
+    //       id: snap.key,
+    //       name: snap.val(),
+    //     })
+    //     setTypingUsers(allTypingUsers)
+    //   }
+    // })
+  }
 
   const removeAllListeners = () => {}
 
@@ -219,6 +247,12 @@ export default function Messages({ currentUser, currentChannel }) {
             ? renderMessages(searchResults)
             : renderMessages(messages)}
         </Comment.Group>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <span className="user__typing">
+            {currentUser.displayName} is typing...
+          </span>
+          <Typing />
+        </div>
       </Segment>
 
       <MessagesForm
