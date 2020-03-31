@@ -1,4 +1,4 @@
-import React, { useState, useEffect, isValidElement, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { Segment, Comment } from 'semantic-ui-react'
 import { useIsMount } from '../../hooks/isMount'
@@ -10,17 +10,19 @@ import Message from './Message'
 import Typing from './Typing'
 
 import firebase from '../../firebase'
+import Skeleton from './Skeleton'
 
 export default function Messages({ currentUser, currentChannel }) {
   const isMount = useIsMount()
   const [user] = useState(currentUser)
   const [channel] = useState(currentChannel)
   const [messages, setMessages] = useState([])
+  const [messagesLoading, setMessagesLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [searchingMessages, setSearchingMessages] = useState(false)
   const [searchResults, setSearchResults] = useState([])
   const [typingUsers, setTypingUsers] = useState([])
-  const [isStarred, setIsStarred] = useState(false)
+  const [isStarred, setIsStarred] = useState(true)
 
   const [messagesRef] = useState(firebase.database().ref('messages'))
   const [privateMessagesRef] = useState(
@@ -32,6 +34,8 @@ export default function Messages({ currentUser, currentChannel }) {
 
   const dispatch = useDispatch()
   const isChannelPrivate = useSelector(state => state.channel.private)
+
+  const messagesEndRef = useRef(null)
 
   useEffect(() => {
     if (user && channel) {
@@ -55,6 +59,7 @@ export default function Messages({ currentUser, currentChannel }) {
       .child(channelId)
       .on('child_added', snap => {
         const message = snap.val()
+        setMessagesLoading(false)
         setMessages(messages => [...messages, message])
       })
   }
@@ -216,6 +221,11 @@ export default function Messages({ currentUser, currentChannel }) {
     )
   }
 
+  const renderSkeleton = loading => {
+    console.log(loading)
+    return loading ? [...Array(10)].map((_, i) => <Skeleton />) : null
+  }
+
   /**
    *
    * @description counts the total posts
@@ -239,6 +249,9 @@ export default function Messages({ currentUser, currentChannel }) {
 
   useEffect(() => {
     countUserPosts()
+    if (messagesEndRef) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
   }, [messages])
 
   const displayTypingUsers = users => {
@@ -277,9 +290,11 @@ export default function Messages({ currentUser, currentChannel }) {
 
       <Segment className="messages">
         <Comment.Group>
+          {renderSkeleton(messagesLoading)}
           {searchTerm
             ? renderMessages(searchResults)
             : renderMessages(messages)}
+          <div ref={messagesEndRef}></div>
         </Comment.Group>
         {displayTypingUsers(typingUsers)}
       </Segment>
