@@ -129,7 +129,10 @@ export default function MessagesForm({
     setUploadTask(fileReference)
   }
 
-  const handleKeyDown = () => {
+  const handleKeyDown = event => {
+    if (event.ctrlKey && event.keyCode === 13) {
+      sendMessage()
+    }
     if (message) {
       typingRef
         .child(currentChannel.id)
