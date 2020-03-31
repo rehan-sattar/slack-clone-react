@@ -5,7 +5,7 @@ import { Menu, Icon } from 'semantic-ui-react'
 import { setChannel, setPrivateChannel } from '../../store/channels/actions'
 import firebase from '../../firebase'
 
-export default function DirectMessages({ currentUser }) {
+function DirectMessages({ currentUser }) {
   const [users, setUsers] = useState([])
   const [userRef] = useState(firebase.database().ref('users'))
   const [connectedRef] = useState(firebase.database().ref('.info/connected'))
@@ -14,59 +14,64 @@ export default function DirectMessages({ currentUser }) {
   const dispatch = useDispatch()
 
   useEffect(() => {
+    const addListeners = currentUserId => {
+      userRef.on('child_added', snap => {
+        if (currentUser.uid !== snap.key) {
+          let user = snap.val()
+          user['uid'] = snap.key
+          user['status'] = 'offline'
+          setUsers(users => [...users, user])
+        }
+      })
+
+      connectedRef.on('value', snap => {
+        if (snap.val() === true) {
+          const ref = presenceRef.child(currentUserId)
+          ref.set(true)
+          ref.onDisconnect().remove(err => {
+            if (err !== null) {
+              console.log(err)
+            }
+          })
+        }
+      })
+    }
+
     if (currentUser) {
       addListeners(currentUser.uid)
     }
     return () => {
       userRef.off()
       connectedRef.off()
+    }
+  }, [userRef, connectedRef])
+
+  useEffect(() => {
+    const setUserStatues = (userId, connected = true) => {
+      setUsers(prevUsers => {
+        return prevUsers.map(user => {
+          if (user.uid === userId) {
+            user['status'] = `${connected ? 'online' : 'offline'}`
+          }
+          return user
+        })
+      })
+    }
+    presenceRef.on('child_added', snap => {
+      if (currentUser.uid !== snap.key) {
+        setUserStatues(snap.key)
+      }
+    })
+
+    presenceRef.on('child_removed', snap => {
+      if (currentUser.uid !== snap.key) {
+        setUserStatues(snap.key, false)
+      }
+    })
+    return () => {
       presenceRef.off()
     }
   }, [])
-
-  /**
-   * Listener for getting all the users
-   */
-  const addListeners = currentUserId => {
-    userRef.on('child_added', snap => {
-      let user = snap.val()
-      user['uid'] = snap.key
-      user['status'] = 'offline'
-      setUsers(users => [...users, user])
-    })
-    connectedRef.on('value', snap => {
-      if (snap.val() === true) {
-        const ref = presenceRef.child(currentUserId)
-        ref.set(true)
-        ref.onDisconnect().remove(err => {
-          if (err !== null) {
-            console.log(err)
-          }
-        })
-        ref.on('child_added', snap => {
-          if (currentUserId === snap.key) {
-            setUserStatues(snap.key)
-          }
-        })
-
-        ref.on('child_removed', snap => {
-          if (currentUserId === snap.key) {
-            setUserStatues(snap.key, false)
-          }
-        })
-      }
-    })
-  }
-
-  const setUserStatues = (userId, connected = true) => {
-    const updatedUsers = users.reduce((acc, user) => {
-      if (user.uid === userId) {
-        user['status'] = `${connected ? 'online' : 'offline'}`
-      }
-      return acc.concat(user)
-    }, [])
-    setUsers(updatedUsers)
-  }
 
   const isUserOnline = user => user.status === 'online'
 
@@ -95,7 +100,7 @@ export default function DirectMessages({ currentUser }) {
         <span>
           <Icon name="mail" /> Direct Messages
         </span>{' '}
-        (2)
+        ({users.length})
       </Menu.Item>
       {users.map((user, index) => {
         return (
@@ -113,3 +118,5 @@ export default function DirectMessages({ currentUser }) {
     </Menu.Menu>
   )
 }
+
+export default React.memo(DirectMessages)
