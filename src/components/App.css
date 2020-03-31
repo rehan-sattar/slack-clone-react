@@ -108,3 +108,9 @@ body,
     opacity: 0;
   }
 }
+
+/* emoji picker styles */
+
+.emojiPicker {
+  position: absolute;
+}
