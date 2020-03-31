@@ -56,6 +56,13 @@ export default function MessagesForm({
         }
       )
     }
+
+    return () => {
+      if (uploadTask !== null) {
+        uploadTask.cancel()
+        setUploadTask(null)
+      }
+    }
   }, [uploadTask])
 
   const sendFileMessage = (downloadedFileUrl, filePath) => {

@@ -26,8 +26,9 @@ export default function Starred({ currentUser }) {
           starredChannel,
         ])
       })
-
-    // delete listener
+    return () => {
+      userRef.child(`${currentUser.uid}/starred`).off()
+    }
   }, [])
 
   useEffect(() => {
@@ -41,6 +42,9 @@ export default function Starred({ currentUser }) {
         )
         setStarredChannels(filteredChannels)
       })
+    return () => {
+      userRef.child(`${currentUser.uid}/starred`).off()
+    }
   }, [starredChannels])
 
   const renderStarredChannels = channels =>

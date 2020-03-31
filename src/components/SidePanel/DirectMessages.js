@@ -17,7 +17,11 @@ export default function DirectMessages({ currentUser }) {
     if (currentUser) {
       addListeners(currentUser.uid)
     }
-    return () => {}
+    return () => {
+      userRef.off()
+      connectedRef.off()
+      presenceRef.off()
+    }
   }, [])
 
   /**

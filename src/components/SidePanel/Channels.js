@@ -97,7 +97,12 @@ export default function Channels() {
     setNotifications(() => [...notifications])
   }
 
-  const removeChannelListeners = () => channelsRef.off()
+  const removeChannelListeners = () => {
+    channelsRef.off()
+    channels.forEach(channel => {
+      messagesRef.child(channel.id).off()
+    })
+  }
 
   const openModal = () => setModal(true)
 

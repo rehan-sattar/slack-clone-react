@@ -31,7 +31,7 @@ export default function Messages({ currentUser, currentChannel }) {
   const [userRef] = useState(firebase.database().ref('users'))
   const [typingRef] = useState(firebase.database().ref('typing'))
   const [connectedRef] = useState(firebase.database().ref('.info/connected'))
-
+  const [listeners, setListeners] = useState([])
   const dispatch = useDispatch()
   const isChannelPrivate = useSelector(state => state.channel.private)
 
@@ -42,19 +42,32 @@ export default function Messages({ currentUser, currentChannel }) {
       addListeners(channel)
       addUserStarListener(channel.id, user.uid)
     }
+    return () => {
+      return removeAllListeners()
+    }
   }, [])
 
   const addListeners = channel => {
-    channelListener(channel.id)
+    getAllMessagesListener(channel.id)
     typingListener(channel.id)
   }
 
+  const addToListeners = (id, ref, event) => {
+    const index = listeners.findIndex(
+      listener =>
+        listener.id === id && listener.ref === ref && listener.event === event
+    )
+    if (index === -1) {
+      const newListener = { id, ref, event }
+      setListeners(prevListeners => [...prevListeners, newListener])
+    }
+  }
   /**
    *
    * @param {string} channelId
    * Change listener to the channel, triggers whenever the message is added, get all the messages of channel
    */
-  const channelListener = channelId => {
+  const getAllMessagesListener = channelId => {
     getMessagesRef()
       .child(channelId)
       .on('child_added', snap => {
@@ -62,6 +75,7 @@ export default function Messages({ currentUser, currentChannel }) {
         setMessagesLoading(false)
         setMessages(messages => [...messages, message])
       })
+    addToListeners(channelId, getMessagesRef(), 'child_added')
   }
 
   /**
@@ -122,6 +136,8 @@ export default function Messages({ currentUser, currentChannel }) {
         setTypingUsers(allTypingUsers)
       }
     })
+    addToListeners(channelId, typingRef, 'child_added')
+
     typingRef.child(channelId).on('child_removed', snap => {
       const index = allTypingUsers.findIndex(tu => tu.id === snap.key)
       if (index !== -1) {
@@ -129,6 +145,7 @@ export default function Messages({ currentUser, currentChannel }) {
         setTypingUsers(allTypingUsers)
       }
     })
+    addToListeners(channelId, typingRef, 'child_removed')
 
     connectedRef.on('value', snap => {
       if (snap.val === true) {
@@ -145,7 +162,11 @@ export default function Messages({ currentUser, currentChannel }) {
     })
   }
 
-  const removeAllListeners = () => {}
+  const removeAllListeners = () => {
+    listeners.forEach(listener => {
+      listener.ref.child(listener.id).off(listener.event)
+    })
+  }
 
   const getMessagesRef = () => {
     return isChannelPrivate ? privateMessagesRef : messagesRef
@@ -222,8 +243,7 @@ export default function Messages({ currentUser, currentChannel }) {
   }
 
   const renderSkeleton = loading => {
-    console.log(loading)
-    return loading ? [...Array(10)].map((_, i) => <Skeleton />) : null
+    return loading ? [...Array(10)].map((_, i) => <Skeleton key={i} />) : null
   }
 
   /**
