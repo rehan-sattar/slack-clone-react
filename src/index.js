@@ -30,7 +30,7 @@ const Root = () => {
         dispatch(setUser(user))
         history.push('/')
       } else {
-        history.push('/login')
+        history.replace('/login')
         dispatch(clearUser())
       }
     })
