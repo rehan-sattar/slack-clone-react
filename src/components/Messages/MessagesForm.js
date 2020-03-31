@@ -125,7 +125,7 @@ export default function MessagesForm({
   }
 
   const getFilePath = channelId => {
-    return isChannelPrivate ? `chat/private-${channelId}` : `chat/public`
+    return isChannelPrivate ? `chat/private/${channelId}` : `chat/public`
   }
 
   const uploadFile = (file, metaData) => {
