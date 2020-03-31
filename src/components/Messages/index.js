@@ -15,18 +15,20 @@ export default function Messages({ currentUser, currentChannel }) {
   const isMount = useIsMount()
   const [user] = useState(currentUser)
   const [channel] = useState(currentChannel)
-  const [messagesRef] = useState(firebase.database().ref('messages'))
-  const [privateMessagesRef] = useState(
-    firebase.database().ref('privateMessages')
-  )
-  const [userRef] = useState(firebase.database().ref('users'))
-  const [typingRef] = useState(firebase.database().ref('typing'))
   const [messages, setMessages] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [searchingMessages, setSearchingMessages] = useState(false)
   const [searchResults, setSearchResults] = useState([])
   const [typingUsers, setTypingUsers] = useState([])
   const [isStarred, setIsStarred] = useState(false)
+
+  const [messagesRef] = useState(firebase.database().ref('messages'))
+  const [privateMessagesRef] = useState(
+    firebase.database().ref('privateMessages')
+  )
+  const [userRef] = useState(firebase.database().ref('users'))
+  const [typingRef] = useState(firebase.database().ref('typing'))
+  const [connectedRef] = useState(firebase.database().ref('.info/connected'))
 
   const dispatch = useDispatch()
   const isChannelPrivate = useSelector(state => state.channel.private)
@@ -115,16 +117,27 @@ export default function Messages({ currentUser, currentChannel }) {
         setTypingUsers(allTypingUsers)
       }
     })
-    // TODO:
-    // typingRef.child(channelId).on('child_added', snap => {
-    //   if (snap.key !== currentUser.id) {
-    //     allTypingUsers.concat({
-    //       id: snap.key,
-    //       name: snap.val(),
-    //     })
-    //     setTypingUsers(allTypingUsers)
-    //   }
-    // })
+    typingRef.child(channelId).on('child_removed', snap => {
+      const index = allTypingUsers.findIndex(tu => tu.id === snap.key)
+      if (index !== -1) {
+        allTypingUsers = allTypingUsers.filter(tu => tu.id !== snap.key)
+        setTypingUsers(allTypingUsers)
+      }
+    })
+
+    connectedRef.on('value', snap => {
+      if (snap.val === true) {
+        typingRef
+          .child(currentChannel.id)
+          .child(currentUser.uid)
+          .onDisconnect()
+          .remove(err => {
+            if (err !== null) {
+              console.log(err)
+            }
+          })
+      }
+    })
   }
 
   const removeAllListeners = () => {}
@@ -228,6 +241,27 @@ export default function Messages({ currentUser, currentChannel }) {
     countUserPosts()
   }, [messages])
 
+  const displayTypingUsers = users => {
+    return (
+      users.length > 0 &&
+      users.map(tu => {
+        return (
+          <div
+            key={tu.id}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              marginBottom: '0.3em',
+            }}
+          >
+            <span className="user__typing">{tu.name} is typing...</span>
+            <Typing />
+          </div>
+        )
+      })
+    )
+  }
+
   return (
     <>
       <MessagesHeader
@@ -247,12 +281,7 @@ export default function Messages({ currentUser, currentChannel }) {
             ? renderMessages(searchResults)
             : renderMessages(messages)}
         </Comment.Group>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <span className="user__typing">
-            {currentUser.displayName} is typing...
-          </span>
-          <Typing />
-        </div>
+        {displayTypingUsers(typingUsers)}
       </Segment>
 
       <MessagesForm
