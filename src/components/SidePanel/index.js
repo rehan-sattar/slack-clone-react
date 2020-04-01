@@ -18,7 +18,7 @@ export default function SidePanel({ currentUser }) {
     >
       <UserPanel currentUser={currentUser} />
       <Starred currentUser={currentUser} />
-      <Channels />
+      <Channels currentUser={currentUser} />
       <DirectMessages currentUser={currentUser} />
     </Menu>
   )
