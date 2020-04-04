@@ -20,7 +20,7 @@
 
 ---
 
-## Online Demo: (Click Here)[https://react-slack-clone-ec5a7.web.app/login]
+## Online Demo: [Click Here](https://react-slack-clone-ec5a7.web.app/login])
 
 ## How to setup ?
 
