@@ -16,8 +16,7 @@ export default function MessagesHeader({
     <Segment clearing>
       <Header fluid="true" floated="left" as="h2" style={{ marginBottom: 0 }}>
         <span>
-          {' '}
-          {channelName}
+          {channelName}{' '}
           {!isChannelPrivate && (
             <Icon
               onClick={handleStarChannel}

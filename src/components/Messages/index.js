@@ -22,7 +22,7 @@ export default function Messages({ currentUser, currentChannel }) {
   const [searchingMessages, setSearchingMessages] = useState(false)
   const [searchResults, setSearchResults] = useState([])
   const [typingUsers, setTypingUsers] = useState([])
-  const [isStarred, setIsStarred] = useState(true)
+  const [isStarred, setIsStarred] = useState(false)
 
   const [messagesRef] = useState(firebase.database().ref('messages'))
   const [privateMessagesRef] = useState(
@@ -111,7 +111,7 @@ export default function Messages({ currentUser, currentChannel }) {
         userRef.child(`${user.uid}/starred`).update({
           [channel.id]: {
             name: channel.name,
-            description: channel.description,
+            details: channel.details,
             createdBy: {
               name: channel.createdBy.name,
               avatar: channel.createdBy.avatar,
