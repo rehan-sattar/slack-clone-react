@@ -132,7 +132,7 @@ export default function Messages({ currentUser, currentChannel }) {
   const typingListener = (channelId) => {
     let allTypingUsers = []
     typingRef.child(channelId).on('child_added', (snap) => {
-      if (snap.key !== currentUser.id) {
+      if (snap.key !== currentUser.uid) {
         allTypingUsers.concat({
           id: snap.key,
           name: snap.val(),
