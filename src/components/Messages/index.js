@@ -316,7 +316,7 @@ export default function Messages({ currentUser, currentChannel }) {
   }
 
   return (
-    <>
+    <div className="right_content_panel">
       <MessagesHeader
         channelName={getChannelName(channel)}
         users={getUniqueUsers(messages)}
@@ -345,6 +345,6 @@ export default function Messages({ currentUser, currentChannel }) {
         messagesRef={getMessagesRef}
         isChannelPrivate={isChannelPrivate}
       />
-    </>
+    </div>
   )
 }
