@@ -20,6 +20,9 @@
 
 ---
 
+## Upcomming features ✔️
+- Mobile responsive layout 
+
 ## Online Demo: [Click Here](https://react-slack-clone-ec5a7.web.app/)
 
 ## How to setup ?
