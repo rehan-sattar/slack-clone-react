@@ -250,20 +250,6 @@ export default function Messages({ currentUser, currentChannel }) {
     if (loading) {
       return [...Array(10)].map((_, i) => <Skeleton key={i} />)
     }
-
-    if (messages.length > 0) {
-      return (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          No Messages!!
-        </div>
-      )
-    }
   }
 
   /**
