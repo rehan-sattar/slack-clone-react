@@ -24,7 +24,8 @@ export default function MetaPanel({
 
   const renderUserPosts = () => {
     return Object.entries(userPosts)
-      .sort((a, b) => b[1] - a[1])
+      .sort((a, b) => b[1].count - a[1].count)
+      .slice(0, 5)
       .map(([key, value], i) => {
         return (
           <ListItem key={key}>
@@ -38,7 +39,7 @@ export default function MetaPanel({
       })
   }
 
-  const getPostText = count =>
+  const getPostText = (count) =>
     count > 1 || count === 0 ? `${count} posts` : `${count} post`
 
   if (isPrivateChannel) {
