@@ -14,21 +14,25 @@ function DirectMessages({ currentUser }) {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    const addListeners = currentUserId => {
-      userRef.on('child_added', snap => {
+    const addListeners = (currentUserId) => {
+      userRef.on('child_added', (snap) => {
         if (currentUser.uid !== snap.key) {
           let user = snap.val()
           user['uid'] = snap.key
           user['status'] = 'offline'
-          setUsers(users => [...users, user])
+          setUsers((users) =>
+            [...users, user].sort((x, y) =>
+              y.name.toLowerCase() < x.name.toLowerCase() ? 1 : -1
+            )
+          )
         }
       })
 
-      connectedRef.on('value', snap => {
+      connectedRef.on('value', (snap) => {
         if (snap.val() === true) {
           const ref = presenceRef.child(currentUserId)
           ref.set(true)
-          ref.onDisconnect().remove(err => {
+          ref.onDisconnect().remove((err) => {
             if (err !== null) {
               console.log(err)
             }
@@ -48,8 +52,8 @@ function DirectMessages({ currentUser }) {
 
   useEffect(() => {
     const setUserStatues = (userId, connected = true) => {
-      setUsers(prevUsers => {
-        return prevUsers.map(user => {
+      setUsers((prevUsers) => {
+        return prevUsers.map((user) => {
           if (user.uid === userId) {
             user['status'] = `${connected ? 'online' : 'offline'}`
           }
@@ -57,13 +61,13 @@ function DirectMessages({ currentUser }) {
         })
       })
     }
-    presenceRef.on('child_added', snap => {
+    presenceRef.on('child_added', (snap) => {
       if (currentUser.uid !== snap.key) {
         setUserStatues(snap.key)
       }
     })
 
-    presenceRef.on('child_removed', snap => {
+    presenceRef.on('child_removed', (snap) => {
       if (currentUser.uid !== snap.key) {
         setUserStatues(snap.key, false)
       }
@@ -73,9 +77,9 @@ function DirectMessages({ currentUser }) {
     }
   }, [])
 
-  const isUserOnline = user => user.status === 'online'
+  const isUserOnline = (user) => user.status === 'online'
 
-  const changeChannel = user => {
+  const changeChannel = (user) => {
     const channelId = getChannelId(user.uid)
     const channelData = {
       id: channelId,
@@ -86,7 +90,7 @@ function DirectMessages({ currentUser }) {
     setActiveChannel(user.uid)
   }
 
-  const getChannelId = userId => {
+  const getChannelId = (userId) => {
     const currentUserId = currentUser.uid
     // Check for creating a unique path...
     return userId < currentUserId
